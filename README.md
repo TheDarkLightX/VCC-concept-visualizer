@@ -35,8 +35,14 @@ npm run dev
 
 The website can be deployed using:
 
-1. **Replit Deployments**: Click the "Deploy" button in your Replit project for quick and cost-effective hosting (approximately a few cents per day for regular traffic).
-2. **GitHub Pages**: Connect the repository to GitHub Pages for free static site hosting.
+1. **GitHub Pages** (Recommended): Free hosting with simple setup.
+   - Repository: [https://github.com/TheDarkLightX/VCC-concept-visualizer](https://github.com/TheDarkLightX/VCC-concept-visualizer)
+   - Live Site: [https://TheDarkLightX.github.io/VCC-concept-visualizer](https://TheDarkLightX.github.io/VCC-concept-visualizer)
+   - Deployment Script: Use `./deploy.sh` to build and deploy to GitHub Pages.
+   - For detailed deployment instructions, see [deploy-to-github.md](./deploy-to-github.md)
+
+2. **Replit Deployments**: Click the "Deploy" button in your Replit project for quick hosting.
+
 3. **Vercel/Netlify**: For enhanced features and scalability if needed.
 
 ## License

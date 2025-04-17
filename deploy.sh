@@ -8,15 +8,9 @@ GITHUB_USERNAME="TheDarkLightX"
 REPO_NAME="VCC-concept-visualizer"
 BASE_URL="/${REPO_NAME}/"
 
-# Build project
-echo "Building project..."
-npm run build
-
-# Fix base URLs in HTML and JS files since we can't modify package.json
-echo "Modifying paths for GitHub Pages deployment..."
-find dist -name "*.html" -exec sed -i "s|href=\"/|href=\"${BASE_URL}|g" {} \;
-find dist -name "*.html" -exec sed -i "s|src=\"/|src=\"${BASE_URL}|g" {} \;
-find dist -name "*.js" -exec sed -i "s|from\"/|from\"${BASE_URL}|g" {} \;
+# Build project with GitHub Pages config
+echo "Building project for GitHub Pages..."
+NODE_ENV=production npx vite build --config vite.gh-pages.config.js
 
 # Navigate to the build directory
 cd dist
