@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import EnhancedFormulaSyntax from '@/components/EnhancedFormulaSyntax';
 import MathFormula from '@/components/MathFormula';
+import EnhancedMathFormula from '@/components/EnhancedMathFormula';
 
 export default function FormulasPage() {
   const dbrFormulas = [
@@ -111,8 +112,8 @@ export default function FormulasPage() {
               to greater rewards for all participants.
             </p>
 
-            <MathFormula caption="Dynamic Base Reward Complete Formula Set">
-{`// Base calculation
+            <EnhancedMathFormula 
+              formula={`// Base calculation
 BR_Multiplier = 1 + DBR_Sensitivity * (EETF_avg - EETF_target)
 
 // Bounds enforcement
@@ -125,7 +126,24 @@ Enhanced_Clamped_Multiplier = Clamp(Enhanced_BR_Multiplier, Min_BR_Factor, Max_B
 
 // Final calculation
 Current_BR = Base_BR * Enhanced_Clamped_Multiplier`}
-            </MathFormula>
+              caption="Dynamic Base Reward Complete Formula Set"
+              tooltips={[
+                { term: "Base Reward Multiplier", symbol: "BR_Multiplier", explanation: "A value that scales the base reward amount. Values > 1 increase rewards, values < 1 decrease rewards." },
+                { term: "DBR Sensitivity", symbol: "DBR_Sensitivity", explanation: "A parameter that controls how strongly rewards respond to changes in network EETF." },
+                { term: "Network Average EETF", symbol: "EETF_avg", explanation: "The average Ethical-Ecosystem Transaction Factor across all network transactions." },
+                { term: "Target EETF", symbol: "EETF_target", explanation: "The baseline EETF value where the reward multiplier equals 1 (no adjustment)." },
+                { term: "Clamp Function", symbol: "Clamp", explanation: "A function that ensures a value stays within a specified minimum and maximum range." },
+                { term: "Minimum BR Factor", symbol: "Min_BR_Factor", explanation: "The lowest allowed value for the base reward multiplier to prevent excessive penalties." },
+                { term: "Maximum BR Factor", symbol: "Max_BR_Factor", explanation: "The highest allowed value for the base reward multiplier to maintain system stability." },
+                { term: "Network Feedback Factor", symbol: "Network_Feedback_Factor", explanation: "A parameter that creates non-linear scaling as network ethical behavior improves." },
+                { term: "Maximum Function", symbol: "max", explanation: "Returns the larger of two values. Used to ensure non-negative feedback factors." },
+                { term: "Enhanced Sensitivity", symbol: "Enhanced_Sensitivity", explanation: "A dynamic sensitivity value that increases as network EETF exceeds the target." },
+                { term: "Enhanced BR Multiplier", symbol: "Enhanced_BR_Multiplier", explanation: "The improved base reward multiplier calculation with non-linear sensitivity." },
+                { term: "Enhanced Clamped Multiplier", symbol: "Enhanced_Clamped_Multiplier", explanation: "The final bounded value for the enhanced base reward multiplier." },
+                { term: "Current Base Reward", symbol: "Current_BR", explanation: "The final base reward amount after applying the enhanced multiplier." },
+                { term: "Base Base Reward", symbol: "Base_BR", explanation: "The standard base reward amount before any multipliers are applied." }
+              ]}
+            />
 
             <div className="space-y-4 mt-6">
               <div className="bg-blue-50 p-4 rounded-md border border-blue-200">
@@ -153,8 +171,8 @@ Current_BR = Base_BR * Enhanced_Clamped_Multiplier`}
               that increases with ethical behavior and long-term holding.
             </p>
 
-            <MathFormula caption="Hyper-Compounding Rewards Complete Formula Set">
-{`// Base rate
+            <EnhancedMathFormula 
+              formula={`// Base rate
 Base_Compounding_Rate = 0.05  // 5% annual standard rate
 
 // Individual behavior bonuses
@@ -167,7 +185,26 @@ Clamped_Rate = Clamp(Effective_Compounding_Rate, Min_Rate, Max_Rate)
 
 // Future value calculation
 Future_Value = Present_Value * (1 + Clamped_Rate)^Time`}
-            </MathFormula>
+              caption="Hyper-Compounding Rewards Complete Formula Set"
+              tooltips={[
+                { term: "Base Compounding Rate", symbol: "Base_Compounding_Rate", explanation: "The standard annual compounding rate applied to all accounts (similar to typical interest rates)." },
+                { term: "EETF Bonus", symbol: "EETF_Bonus", explanation: "Additional compounding rate earned based on the account's ethical behavior score." },
+                { term: "Account EETF", symbol: "EETF_Account", explanation: "The individual account's Ethical-Ecosystem Transaction Factor based on their transaction history." },
+                { term: "Minimum EETF Threshold", symbol: "EETF_Min", explanation: "The minimum EETF score required before a user starts receiving ethical behavior bonuses." },
+                { term: "EETF Amplifier", symbol: "EETF_Amplifier", explanation: "A multiplier that controls how strongly ethical behavior affects the compounding bonus." },
+                { term: "LTHF Bonus", symbol: "LTHF_Bonus", explanation: "Additional compounding rate earned based on how long the account has held tokens." },
+                { term: "Account LTHF", symbol: "LTHF_Account", explanation: "The individual account's Long-Term Holding Factor based on token holding duration." },
+                { term: "LTHF Multiplier", symbol: "LTHF_Multiplier", explanation: "A parameter that controls how strongly long-term holding affects the compounding bonus." },
+                { term: "Effective Compounding Rate", symbol: "Effective_Compounding_Rate", explanation: "The combined compounding rate including all bonuses before applying limits." },
+                { term: "Clamped Rate", symbol: "Clamped_Rate", explanation: "The final compounding rate after ensuring it stays within acceptable bounds." },
+                { term: "Minimum Rate", symbol: "Min_Rate", explanation: "The lowest allowed compounding rate to ensure all participants receive some benefit." },
+                { term: "Maximum Rate", symbol: "Max_Rate", explanation: "The highest allowed compounding rate to maintain system stability." },
+                { term: "Future Value", symbol: "Future_Value", explanation: "The projected value of holdings after applying the hyper-compounding rate over time." },
+                { term: "Present Value", symbol: "Present_Value", explanation: "The current value of tokens before applying any compounding." },
+                { term: "Time Period", symbol: "Time", explanation: "The duration over which compounding is applied, typically in years." },
+                { term: "Exponentiation", symbol: "^", explanation: "Indicates raising to a power, representing compounding over multiple time periods." }
+              ]}
+            />
 
             <div className="space-y-4 mt-6">
               <div className="bg-green-50 p-4 rounded-md border border-green-200">
@@ -196,8 +233,8 @@ Future_Value = Present_Value * (1 + Clamped_Rate)^Time`}
               pressure in response to ethical network participation.
             </p>
 
-            <MathFormula caption="Aggressive Ethical Burn Complete Formula Set">
-{`// Base burn multiplier
+            <EnhancedMathFormula 
+              formula={`// Base burn multiplier
 Burn_Multiplier = 1 + AEB_Sensitivity * max(0, (EETF_avg - EETF_threshold))
 
 // Non-linear enhancement
@@ -207,7 +244,23 @@ Enhanced_Burn_Multiplier = 1 + AEB_Sensitivity * max(0, (EETF_avg - EETF_thresho
 Base_Burn_Amount = Network_Revenue * Base_Burn_Percentage
 Actual_Burn_Amount = Base_Burn_Amount * Enhanced_Burn_Multiplier
 Clamped_Burn_Amount = Clamp(Actual_Burn_Amount, Min_Burn, Max_Burn)`}
-            </MathFormula>
+              caption="Aggressive Ethical Burn Complete Formula Set"
+              tooltips={[
+                { term: "Burn Multiplier", symbol: "Burn_Multiplier", explanation: "A value that scales the base burn amount. Higher network EETF leads to higher burn multipliers." },
+                { term: "AEB Sensitivity", symbol: "AEB_Sensitivity", explanation: "A parameter that controls how strongly the burn rate responds to changes in network EETF." },
+                { term: "Network Average EETF", symbol: "EETF_avg", explanation: "The average Ethical-Ecosystem Transaction Factor across all network transactions." },
+                { term: "EETF Threshold", symbol: "EETF_threshold", explanation: "The minimum network EETF required before additional token burning is activated." },
+                { term: "AEB Exponent", symbol: "AEB_Exponent", explanation: "A power value that creates non-linear scaling, making burn rate increase more rapidly at higher EETF levels." },
+                { term: "Enhanced Burn Multiplier", symbol: "Enhanced_Burn_Multiplier", explanation: "An improved multiplier calculation that uses non-linear scaling for more powerful effects at high EETF." },
+                { term: "Base Burn Amount", symbol: "Base_Burn_Amount", explanation: "The standard amount of tokens to burn before applying any multipliers." },
+                { term: "Network Revenue", symbol: "Network_Revenue", explanation: "The total revenue generated by the network available for potential burning." },
+                { term: "Base Burn Percentage", symbol: "Base_Burn_Percentage", explanation: "The default percentage of network revenue allocated to token burns." },
+                { term: "Actual Burn Amount", symbol: "Actual_Burn_Amount", explanation: "The calculated burn amount after applying the enhanced multiplier." },
+                { term: "Clamped Burn Amount", symbol: "Clamped_Burn_Amount", explanation: "The final burn amount after ensuring it stays within acceptable bounds." },
+                { term: "Minimum Burn", symbol: "Min_Burn", explanation: "The lowest allowed burn amount to ensure some deflationary pressure exists." },
+                { term: "Maximum Burn", symbol: "Max_Burn", explanation: "The highest allowed burn amount to prevent excessive deflation and maintain stability." }
+              ]}
+            />
 
             <div className="space-y-4 mt-6">
               <div className="bg-red-50 p-4 rounded-md border border-red-200">
@@ -240,8 +293,8 @@ Clamped_Burn_Amount = Clamp(Actual_Burn_Amount, Min_Burn, Max_Burn)`}
 
             <div className="bg-purple-50 p-4 rounded-md border border-purple-200">
               <h4 className="font-semibold text-purple-800 mb-2">Combined Feedback Loop:</h4>
-              <MathFormula>
-{`// As Network EETF increases:
+              <EnhancedMathFormula 
+                formula={`// As Network EETF increases:
 ↑ Network_EETF → ↑ DBR & ↑ AEB → ↑ Token_Value → ↑ Incentive → ↑ Network_EETF
 
 // As Individual EETF increases:
@@ -249,7 +302,19 @@ Clamped_Burn_Amount = Clamp(Actual_Burn_Amount, Min_Burn, Max_Burn)`}
 
 // Cross-mechanism synergy:
 ↑ Individual_EETF (many accounts) → ↑ Network_EETF → Benefits All`}
-              </MathFormula>
+                caption="Synergistic Interaction of VCC Components"
+                tooltips={[
+                  { term: "Network EETF", symbol: "Network_EETF", explanation: "The average Ethical-Ecosystem Transaction Factor across all network transactions." },
+                  { term: "Dynamic Base Reward", symbol: "DBR", explanation: "Mechanism that increases base rewards for all participants based on network ethical behavior." },
+                  { term: "Aggressive Ethical Burn", symbol: "AEB", explanation: "Mechanism that increases token burning based on network ethical behavior." },
+                  { term: "Token Value", symbol: "Token_Value", explanation: "The market value of the token, which increases with higher network ethical behavior." },
+                  { term: "Incentive", symbol: "Incentive", explanation: "The financial motivation for users to participate ethically in the network." },
+                  { term: "Individual EETF", symbol: "Individual_EETF", explanation: "A specific account's Ethical-Ecosystem Transaction Factor based on their behavior." },
+                  { term: "Hyper-Compounding Rewards", symbol: "HCR", explanation: "Mechanism that increases personal compounding rates based on individual ethical behavior." },
+                  { term: "Personal Rewards", symbol: "Personal_Rewards", explanation: "The direct financial benefits an individual receives from their ethical participation." },
+                  { term: "Upward Arrow", symbol: "↑", explanation: "Indicates an increase in the value or effectiveness of the parameter." }
+                ]}
+              />
             </div>
           </CardContent>
         </Card>

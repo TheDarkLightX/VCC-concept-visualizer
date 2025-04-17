@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent } from './ui/card';
 
 /**
  * A component that visualizes the TEEC formula with LaTeX-like formatting
