@@ -1,33 +1,41 @@
-name: Deploy to GitHub Pages
+name: 🚀 Deploy to GitHub Pages over SSH
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main   # adjust if your default branch is named differently
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
+      # 1) Check out your code
+      - uses: actions/checkout@v3
+
+      # 2) Install Node, then build
+      - uses: actions/setup-node@v3
         with:
           node-version: '18'
-          cache: 'npm'
-          
-      - name: Install dependencies
-        run: npm ci
-        
-      - name: Build for GitHub Pages
-        run: NODE_ENV=production npx vite build --config vite.gh-pages.config.js
-        
-      - name: Create .nojekyll file
-        run: touch dist/.nojekyll
-        
-      - name: Deploy
-        uses: JamesIves/github-pages-deploy-action@v4
+      - run: |
+          npm ci
+          npm run build --config vite.gh-pages.config.js
+
+      # 3) Load your SSH deploy key
+      - name: Load deploy key
+        uses: webfactory/ssh-agent@v0.8.1
         with:
-          folder: dist
-          branch: gh-pages
+          ssh-private-key: ${{ secrets.SSH_DEPLOY_KEY }}
+
+      # 4) Push built site to gh-pages
+      - name: Deploy to gh-pages
+        run: |
+          cd dist
+          rm -rf .git
+          git init
+          git remote add origin git@github.com:${{ github.repository }}.git
+          git checkout -b gh-pages
+          git add .
+          git commit -m "🛠 CI deploy"
+          git push -f origin gh-pages
+
