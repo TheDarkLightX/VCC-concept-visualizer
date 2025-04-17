@@ -8,6 +8,7 @@ An interactive educational website explaining the Virtuous Cycle Compounder (VCC
 - **TEEC Foundation Explainer**: Learn about the TauNet Ethical-Eco Compounder system that forms the foundation of VCC.
 - **Mathematical Visualizations**: See formulas and equations in LaTeX-like notation for better understanding.
 - **Evolution Diagram**: Visual representation of how TEEC evolves into VCC through enhanced mechanisms and feedback loops.
+- **Mathematical Symbol Tooltips**: Hover over mathematical symbols to get explanations of their meaning and significance.
 
 ## Key Concepts Explained
 
@@ -32,7 +33,11 @@ npm run dev
 
 ## Deployment
 
-The website can be deployed using GitHub Pages or other static site hosting services.
+The website can be deployed using:
+
+1. **Replit Deployments**: Click the "Deploy" button in your Replit project for quick and cost-effective hosting (approximately a few cents per day for regular traffic).
+2. **GitHub Pages**: Connect the repository to GitHub Pages for free static site hosting.
+3. **Vercel/Netlify**: For enhanced features and scalability if needed.
 
 ## License
 
