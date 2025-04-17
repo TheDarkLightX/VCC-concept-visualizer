@@ -23,7 +23,8 @@ jobs:
 
       # 3) Load your SSH deploy key
       - name: Load deploy key
-        uses: webfactory/ssh-agent@v0.8.1
+        uses: webfactory/ssh-agent@v0.9.1
+
         with:
           ssh-private-key: ${{ secrets.SSH_DEPLOY_KEY }}
 
