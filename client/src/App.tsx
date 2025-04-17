@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import TEECExplainer from "@/pages/TEECExplainer";
+import TauImplementation from "@/pages/TauImplementation";
 import VCCLogo from "@/components/VCCLogo";
 
 function Router() {
@@ -21,12 +22,14 @@ function Router() {
           <div className="space-x-6">
             <Link href="/" className="hover:text-blue-300 transition-colors">Home</Link>
             <Link href="/teec" className="hover:text-blue-300 transition-colors">TEEC Explainer</Link>
+            <Link href="/tau" className="hover:text-blue-300 transition-colors">Tau Implementation</Link>
           </div>
         </div>
       </nav>
       <Switch>
         <Route path="/" component={Home} />
         <Route path="/teec" component={TEECExplainer} />
+        <Route path="/tau" component={TauImplementation} />
         <Route component={NotFound} />
       </Switch>
     </>
