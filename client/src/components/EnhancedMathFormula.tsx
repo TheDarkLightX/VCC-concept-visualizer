@@ -21,64 +21,67 @@ const EnhancedMathFormula: React.FC<EnhancedMathFormulaProps> = ({
 }) => {
   // Function to replace terms with tooltip-wrapped versions
   const processFormulaWithTooltips = (text: string) => {
-    let result = text;
-    
-    // Sort tooltips by length of symbol (descending) to prevent shorter symbols 
-    // from matching parts of longer ones
-    const sortedTooltips = [...tooltips].sort((a, b) => 
-      b.symbol.length - a.symbol.length
-    );
-    
-    for (const tooltipItem of sortedTooltips) {
-      const regex = new RegExp(tooltipItem.symbol.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
-      
-      result = result.replace(regex, match => {
-        return `<tooltip data-term="${tooltipItem.term}" data-explanation="${tooltipItem.explanation}">${match}</tooltip>`;
-      });
-    }
-    
     // Split by lines to process each line separately
-    const lines = result.split('\n');
-    const processedLines = lines.map(line => {
+    const lines = text.split('\n');
+    
+    const processedLines = lines.map((line, lineIndex) => {
       // If the line is a comment, don't process tooltips
       if (line.trim().startsWith('//')) {
-        return <div key={line} className="text-green-400 text-sm italic text-left">{line}</div>;
+        return <div key={`line-${lineIndex}`} className="text-green-400 text-sm italic text-left">{line}</div>;
       }
       
-      // Extract tooltip parts and convert to components
+      // Process normal lines with potential tooltips
       const parts: React.ReactNode[] = [];
-      let remainingText = line;
-      let tooltipRegex = /<tooltip data-term="([^"]*)" data-explanation="([^"]*)">([^<]*)<\/tooltip>/;
-      let match;
-      let lastIndex = 0;
-      
-      while ((match = tooltipRegex.exec(remainingText)) !== null) {
-        const [fullMatch, term, explanation, symbol] = match;
-        const index = remainingText.indexOf(fullMatch);
+      let currentIndex = 0;
+      let currentText = '';
+
+      // For each character, check if it starts any tooltip term
+      for (let i = 0; i < line.length; i++) {
+        let foundTooltip = false;
         
-        // Add text before the tooltip
-        if (index > 0) {
-          parts.push(remainingText.substring(0, index));
+        // Check each tooltip to see if it matches at the current position
+        for (const tooltip of tooltips) {
+          if (i + tooltip.symbol.length <= line.length && 
+              line.substring(i, i + tooltip.symbol.length) === tooltip.symbol) {
+            
+            // If we have accumulated text, add it before the tooltip
+            if (currentText) {
+              parts.push(<span key={`text-${currentIndex}`}>{currentText}</span>);
+              currentText = '';
+              currentIndex++;
+            }
+            
+            // Add the tooltip
+            parts.push(
+              <TooltipFormula 
+                key={`tooltip-${currentIndex}`} 
+                term={tooltip.term} 
+                explanation={tooltip.explanation}
+              >
+                {tooltip.symbol}
+              </TooltipFormula>
+            );
+            
+            // Skip ahead past the symbol
+            i += tooltip.symbol.length - 1;
+            currentIndex++;
+            foundTooltip = true;
+            break;
+          }
         }
         
-        // Add the tooltip
-        parts.push(
-          <TooltipFormula key={`${term}-${lastIndex}`} term={term} explanation={explanation}>
-            {symbol}
-          </TooltipFormula>
-        );
-        
-        // Update the remaining text
-        remainingText = remainingText.substring(index + fullMatch.length);
-        lastIndex++;
+        // If no tooltip was found, add the character to current text
+        if (!foundTooltip && i < line.length) {
+          currentText += line[i];
+        }
       }
       
       // Add any remaining text
-      if (remainingText) {
-        parts.push(remainingText);
+      if (currentText) {
+        parts.push(<span key={`text-${currentIndex}`}>{currentText}</span>);
       }
       
-      return <div key={line} className="leading-relaxed">{parts}</div>;
+      return <div key={`line-${lineIndex}`} className="leading-relaxed">{parts}</div>;
     });
     
     return <>{processedLines}</>;
