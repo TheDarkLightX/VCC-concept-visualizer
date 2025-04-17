@@ -5,7 +5,7 @@ name: 🚀 Deploy to GitHub Pages over SSH
 on:
   push:
     branches:
-      - main
+      - main   # adjust if your default branch is named differently
 
 jobs:
   build-and-deploy:
@@ -15,13 +15,21 @@ jobs:
       # 1) Check out your code
       - uses: actions/checkout@v3
 
-      # 2) Install Node, then build with the GitHub‑Pages config
+      # 2) Install Node & dependencies, then build
       - uses: actions/setup-node@v3
         with:
           node-version: '18'
       - run: |
           npm ci
-          npm run build -- --config vite.gh-pages.config.js
+          # Build the client into dist/ using the gh‑pages config
+          npx vite build --config vite.gh-pages.config.js
+          # Bundle server code into dist/ (optional, removes the invalid --config flag)
+          npx esbuild server/index.ts \
+            --platform=node \
+            --packages=external \
+            --bundle \
+            --format=esm \
+            --outdir=dist
 
       # 3) Load your SSH deploy key
       - name: Load deploy key
@@ -29,13 +37,13 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_DEPLOY_KEY }}
 
-      # 4) Push the dist folder to gh-pages
+      # 4) Push the contents of dist/ to the gh-pages branch
       - name: Deploy to gh-pages
         run: |
           cd dist
           rm -rf .git
           git init
-          # configure author identity so commits don’t fail
+          # Set a commit identity to avoid “empty ident name” errors
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git remote add origin git@github.com:${{ github.repository }}.git
