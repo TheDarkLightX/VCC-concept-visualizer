@@ -3,7 +3,7 @@ name: 🚀 Deploy to GitHub Pages over SSH
 on:
   push:
     branches:
-      - main   # adjust if your default branch is named differently
+      - main
 
 jobs:
   build-and-deploy:
@@ -24,16 +24,19 @@ jobs:
       # 3) Load your SSH deploy key
       - name: Load deploy key
         uses: webfactory/ssh-agent@v0.9.1
-
         with:
           ssh-private-key: ${{ secrets.SSH_DEPLOY_KEY }}
 
-      # 4) Push built site to gh-pages
+      # 4) Push built site to gh‑pages
       - name: Deploy to gh-pages
         run: |
           cd dist
           rm -rf .git
           git init
+          # ── configure author identity so commits don’t fail ──
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          # ── end identity config ──
           git remote add origin git@github.com:${{ github.repository }}.git
           git checkout -b gh-pages
           git add .
