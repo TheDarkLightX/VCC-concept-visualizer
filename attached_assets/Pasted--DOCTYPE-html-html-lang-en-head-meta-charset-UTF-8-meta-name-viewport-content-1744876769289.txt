@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtuous Cycle Compounder (VCC) Concept</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* Tailwind gray-50 */
+            color: #1f2937; /* Tailwind gray-800 */
+        }
+        .section-card {
+            background-color: white;
+            border-radius: 0.75rem; /* lg */
+            padding: 1.5rem; /* p-6 */
+            margin-bottom: 2rem; /* mb-8 */
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); /* shadow-md */
+            border: 1px solid #e5e7eb; /* border-gray-200 */
+        }
+        .section-title {
+            font-size: 1.5rem; /* text-2xl */
+            font-weight: 700; /* font-bold */
+            margin-bottom: 1.5rem; /* mb-6 */
+            color: #111827; /* gray-900 */
+            border-bottom: 2px solid #3b82f6; /* blue-500 */
+            padding-bottom: 0.5rem; /* pb-2 */
+        }
+        .mechanism-title {
+            font-size: 1.25rem; /* text-xl */
+            font-weight: 600; /* font-semibold */
+            margin-bottom: 1rem; /* mb-4 */
+            color: #1e3a8a; /* blue-800 */
+        }
+        .formula-box {
+            background-color: #f3f4f6; /* gray-100 */
+            border-left: 4px solid #3b82f6; /* blue-500 */
+            padding: 1rem; /* p-4 */
+            margin: 1rem 0; /* my-4 */
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem; /* text-sm */
+            color: #374151; /* gray-700 */
+            white-space: pre-wrap; /* Allow wrapping */
+            border-radius: 0.25rem; /* rounded-sm */
+        }
+        .chart-container {
+            margin-top: 1.5rem; /* mt-6 */
+            height: 300px; /* Fixed height for charts */
+        }
+        .slider-container {
+            margin-top: 1rem; /* mt-4 */
+            margin-bottom: 0.5rem; /* mb-2 */
+        }
+        label {
+            font-size: 0.875rem; /* text-sm */
+            font-weight: 500; /* font-medium */
+            color: #374151; /* gray-700 */
+            margin-right: 0.5rem; /* mr-2 */
+        }
+        input[type="range"] {
+            width: 100%;
+            cursor: pointer;
+        }
+        .value-display {
+            font-weight: 600;
+            color: #1e40af; /* blue-800 */
+            min-width: 45px;
+            text-align: right;
+            display: inline-block;
+            background-color: #e0e7ff; /* blue-100 */
+            padding: 0.1rem 0.4rem;
+            border-radius: 0.25rem;
+        }
+        .disclaimer {
+            font-size: 0.875rem; /* text-sm */
+            color: #6b7280; /* gray-500 */
+            margin-top: 2rem; /* mt-8 */
+            padding: 1rem;
+            background-color: #f9fafb; /* gray-50 */
+            border-radius: 0.5rem; /* rounded-md */
+            border: 1px dashed #d1d5db; /* border-gray-300 */
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 lg:p-12">
+
+    <header class="text-center mb-10">
+        <h1 class="text-3xl md:text-4xl font-bold mb-2 text-gray-900">The Virtuous Cycle Compounder (VCC)</h1>
+        <p class="text-lg text-gray-600">A High-Impact TEEC Formula Concept for Aligning Ethics and Rewards</p>
+    </header>
+
+    <main>
+        <section class="section-card">
+            <p class="mb-4 text-gray-700">This concept aims to create the most powerful alignment between ethical/ecosystem-beneficial actions (as measured by EETF associated with accounts and transactions) and potential wealth accumulation. It draws inspiration from mechanisms that drove early Bitcoin adoption and value while grounding the rewards in demonstrable "goodness" defined by the TauNet Ethical-Eco Compounder (TEEC) principles.</p>
+            <p class="text-gray-700">It focuses on creating strong positive feedback loops where ethical activity is significantly amplified.</p>
+        </section>
+
+        <section class="section-card">
+            <h2 class="section-title">Core Principles</h2>
+            <ul class="list-disc list-inside space-y-2 text-gray-700">
+                <li><strong class="font-semibold text-gray-800">Aggressive Compounding:</strong> Rewards associated with accounts demonstrating high ethical performance should compound at rates significantly boosted by sustained ethical transaction patterns and long-term commitment (LTHF).</li>
+                <li><strong class="font-semibold text-gray-800">Accelerated Deflation:</strong> Network-wide ethical behavior (high average EETF) should trigger increasingly strong deflationary pressure (token burning), linking collective goodness to token scarcity.</li>
+                <li><strong class="font-semibold text-gray-800">Positive Feedback Loops:</strong> Mechanisms where high EETF scores from account activity and high collective network ethics reinforce each other, accelerating reward generation and value appreciation.</li>
+            </ul>
+        </section>
+
+        <section class="section-card">
+            <h2 class="section-title">VCC Components & Visualizations</h2>
+
+            <div class="mb-8 pb-8 border-b border-gray-200">
+                <h3 class="mechanism-title">1. Dynamic & Amplified Base Reward (DBR+)</h3>
+                <p class="text-gray-700 mb-2">The base reward multiplier (`Current_BR`) used in all TEEC calculations adjusts based on the network's average EETF (`EETF_avg`). Higher average ethics boost the base reward for everyone. This version includes a subtle feedback where the sensitivity might slightly increase at very high `EETF_avg`.</p>
+                <div class="formula-box">
+BR_Multiplier = 1 + DBR_Sensitivity * (EETF_avg - EETF_target)
+Clamped_Multiplier = Clamp(BR_Multiplier, Min_BR_Factor, Max_BR_Factor)
+// Optional Enhancement:
+Enhanced_Sensitivity = DBR_Sensitivity * (1 + Network_Feedback_Factor * max(0, EETF_avg - EETF_target))
+Enhanced_BR_Multiplier = 1 + Enhanced_Sensitivity * (EETF_avg - EETF_target)
+Enhanced_Clamped_Multiplier = Clamp(Enhanced_BR_Multiplier, Min_BR_Factor, Max_BR_Factor)
+
+Current_BR = Base_BR * Enhanced_Clamped_Multiplier // Use enhanced version
+                </div>
+                <div class="slider-container">
+                    <label for="dbr-eetf-avg-slider">Network Avg EETF:</label>
+                    <input type="range" id="dbr-eetf-avg-slider" min="0.5" max="2.0" step="0.01" value="1.2">
+                    <span class="value-display" id="dbr-eetf-avg-value">1.20</span>
+                    <span class="ml-4 text-sm text-gray-600">Current BR Multiplier: <strong class="value-display" id="dbr-current-br">2.00</strong>x</span>
+                </div>
+                <div class="chart-container">
+                    <canvas id="dbrChart"></canvas>
+                </div>
+            </div>
+
+            <div class="mb-8 pb-8 border-b border-gray-200">
+                <h3 class="mechanism-title">2. Hyper-Compounding Rewards (HCR)</h3>
+                <p class="text-gray-700 mb-2">Replaces simple compounding. The *rate* of compounding (`Effective_Comp_Rate`) is aggressively boosted by an account's sustained average EETF (`EETF_account_avg`) and Long-Term Holding Factor (`LTHF_account`).</p>
+                <div class="formula-box">
+EETF_Comp_Mult = 1 + EETF_Comp_Sensitivity * max(0, EETF_account_avg - Base_EETF)
+LTHF_Comp_Mult = 1 + LTHF_Comp_Sensitivity * max(0, LTHF_account - Base_LTHF)
+
+Effective_Comp_Rate = Base_Comp_Rate * EETF_Comp_Mult * LTHF_Comp_Mult
+Compounding_Factor = (1 + Effective_Comp_Rate)^Time
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="slider-container">
+                        <label for="hcr-eetf-account-slider">Account Avg EETF:</label>
+                        <input type="range" id="hcr-eetf-account-slider" min="0.8" max="2.0" step="0.01" value="1.0">
+                        <span class="value-display" id="hcr-eetf-account-value">1.00</span>
+                    </div>
+                    <div class="slider-container">
+                        <label for="hcr-lthf-account-slider">Account LTHF:</label>
+                        <input type="range" id="hcr-lthf-account-slider" min="1.0" max="3.0" step="0.01" value="1.0">
+                        <span class="value-display" id="hcr-lthf-account-value">1.00</span>
+                    </div>
+                </div>
+                 <p class="text-center mt-2 text-sm text-gray-600">Effective Annual Compounding Rate: <strong class="value-display text-base" id="hcr-effective-rate">5.00</strong>%</p>
+                <div class="chart-container">
+                    <canvas id="hcrChart"></canvas>
+                </div>
+                 <p class="text-xs text-center text-gray-500 mt-1">Chart shows growth of 100 tokens over 10 years at the calculated rate.</p>
+            </div>
+
+            <div>
+                <h3 class="mechanism-title">3. Aggressive Ethical Burn (AEB)</h3>
+                <p class="text-gray-700 mb-2">Enhances token burning. The burn rate increases non-linearly (e.g., using a power law) as the network average EETF (`EETF_avg`) surpasses its target, creating stronger deflationary pressure at higher collective ethics.</p>
+                <div class="formula-box">
+// Power Law Example:
+Burn_Power_Multiplier = (1 + max(0, EETF_avg - EETF_target))^Power_Sensitivity
+Burn_Amount = Funding_Source * Base_Burn_Rate * Burn_Power_Multiplier
+                </div>
+                <div class="slider-container">
+                    <label for="aeb-eetf-avg-slider">Network Avg EETF:</label>
+                    <input type="range" id="aeb-eetf-avg-slider" min="0.5" max="2.0" step="0.01" value="1.2">
+                    <span class="value-display" id="aeb-eetf-avg-value">1.20</span>
+                     <span class="ml-4 text-sm text-gray-600">Relative Burn Amount: <strong class="value-display" id="aeb-burn-amount">1.00</strong>x Base</span>
+                </div>
+                <div class="chart-container">
+                    <canvas id="aebChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section class="section-card">
+            <h2 class="section-title">Why this is Powerful: Synergy & Feedback</h2>
+            <ul class="list-disc list-inside space-y-2 text-gray-700">
+                <li><strong class="font-semibold text-gray-800">Synergy:</strong> High EETF scores associated with an account's transactions directly boost base rewards AND dramatically increase the effective compounding rate (HCR) for that account's holdings.</li>
+                <li><strong class="font-semibold text-gray-800">Feedback Loop 1 (Account-Level):</strong> Sustained high average EETF for an account leads to exponentially faster growth of holdings via HCR.</li>
+                <li><strong class="font-semibold text-gray-800">Feedback Loop 2 (Collective):</strong> High network average EETF increases the base reward for all (DBR+) AND triggers aggressive burning (AEB), reducing supply and potentially increasing the value of tokens held by all accounts.</li>
+                <li><strong class="font-semibold text-gray-800">Alignment:</strong> The path to potentially significant returns is explicitly tied to maximizing EETF scores associated with account activity and the collective network average over the long term. It aims to make sustained "goodness" (as defined by transaction evaluation criteria) the most profitable strategy, regardless of whether the actor is human or AI.</li>
+            </ul>
+        </section>
+
+        <section class="disclaimer">
+            <h3 class="font-semibold text-gray-700 mb-2">Disclaimer</h3>
+            <p>This website presents a conceptual model (VCC). The precise parameters (Sensitivities, Factors, Rates, Targets, Base Values) are illustrative and would require extensive modeling, simulation, and governance via community consensus to ensure stability and achieve the intended effects without unintended consequences. The non-linearities introduced make the system potentially powerful but also highly sensitive and complex to calibrate.</p>
+        </section>
+
+    </main>
+
+    <footer class="text-center mt-10 pt-5 border-t border-gray-300">
+        <p class="text-sm text-gray-500">VCC Concept Explainer</p>
+    </footer>
+
+    <script>
+        // --- Chart Instances ---
+        let dbrChartInstance, hcrChartInstance, aebChartInstance;
+
+        // --- Default Parameters (Illustrative - should be governed) ---
+        const params = {
+            // DBR+
+            base_br: 2.0,
+            dbr_sensitivity: 0.8,
+            eetf_target: 1.2,
+            min_br_factor: 0.5,
+            max_br_factor: 3.0, // Increased max for visual range
+            network_feedback_factor: 0.1, // Subtle feedback
+
+            // HCR
+            base_comp_rate: 0.05, // 5% base annual rate
+            base_eetf: 1.0,
+            base_lthf: 1.0,
+            eetf_comp_sensitivity: 1.5, // High sensitivity
+            lthf_comp_sensitivity: 0.7, // Moderate sensitivity
+
+            // AEB
+            // eetf_target is shared with DBR+
+            power_sensitivity: 2.5, // Power > 1 for acceleration
+            base_burn_rate: 1.0, // For relative calculation
+            // funding_source_example: 1000 // Not directly used in relative chart
+        };
+
+        // --- Helper Functions ---
+        function clamp(value, min, max) {
+            return Math.max(min, Math.min(value, max));
+        }
+
+        // --- DBR+ Calculations & Chart ---
+        const dbrEetfAvgSlider = document.getElementById('dbr-eetf-avg-slider');
+        const dbrEetfAvgValue = document.getElementById('dbr-eetf-avg-value');
+        const dbrCurrentBr = document.getElementById('dbr-current-br');
+        const dbrCtx = document.getElementById('dbrChart').getContext('2d');
+
+        function calculateDbr(eetf_avg) {
+            const enhanced_sensitivity = params.dbr_sensitivity * (1 + params.network_feedback_factor * Math.max(0, eetf_avg - params.eetf_target));
+            const enhanced_br_multiplier = 1 + enhanced_sensitivity * (eetf_avg - params.eetf_target);
+            const enhanced_clamped_multiplier = clamp(enhanced_br_multiplier, params.min_br_factor, params.max_br_factor);
+            return params.base_br * enhanced_clamped_multiplier;
+        }
+
+        function updateDbrChart() {
+            const current_eetf_avg = parseFloat(dbrEetfAvgSlider.value);
+            dbrEetfAvgValue.textContent = current_eetf_avg.toFixed(2);
+            const current_br_value = calculateDbr(current_eetf_avg);
+            dbrCurrentBr.textContent = (current_br_value / params.base_br).toFixed(2); // Show as multiplier
+
+            // Update chart data
+            const eetf_range = npRange(0.5, 2.0, 50); // Use helper for range
+            const br_values = eetf_range.map(eetf => calculateDbr(eetf));
+
+            if (dbrChartInstance) {
+                dbrChartInstance.data.labels = eetf_range.map(e => e.toFixed(2));
+                dbrChartInstance.data.datasets[0].data = br_values;
+                // Update vertical line for current slider value
+                const currentValIndex = eetf_range.findIndex(e => e >= current_eetf_avg);
+                 if(dbrChartInstance.options.plugins.annotation?.annotations?.line1) {
+                    dbrChartInstance.options.plugins.annotation.annotations.line1.xMin = current_eetf_avg;
+                    dbrChartInstance.options.plugins.annotation.annotations.line1.xMax = current_eetf_avg;
+                 }
+
+                dbrChartInstance.update();
+            }
+        }
+
+        function initDbrChart() {
+            const eetf_range = npRange(0.5, 2.0, 50);
+            const br_values = eetf_range.map(eetf => calculateDbr(eetf));
+
+             // Check if annotation plugin is available, otherwise skip annotations
+            const annotationPluginAvailable = typeof Chart.registry.plugins.get('annotation') !== 'undefined';
+
+            const chartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { title: { display: true, text: 'Network Average EETF' } },
+                    y: { title: { display: true, text: 'Current Base Reward (BR)' }, beginAtZero: true }
+                },
+                plugins: {
+                    tooltip: { mode: 'index', intersect: false },
+                    legend: { display: true },
+                },
+                interaction: {
+                    mode: 'nearest',
+                    axis: 'x',
+                    intersect: false
+                },
+            };
+
+             // Add annotations only if the plugin is loaded (it isn't by default CDN)
+             // To enable, you'd need to load chartjs-plugin-annotation separately
+             /*
+             if (annotationPluginAvailable) {
+                 chartOptions.plugins.annotation = {
+                    annotations: {
+                        line1: { // Current Slider Value
+                            type: 'line',
+                            scaleID: 'x',
+                            value: parseFloat(dbrEetfAvgSlider.value),
+                            borderColor: 'rgba(255, 99, 132, 0.8)',
+                            borderWidth: 2,
+                            borderDash: [6, 6],
+                            label: {
+                                content: 'Current Avg EETF',
+                                enabled: true,
+                                position: 'start'
+                            }
+                        },
+                        line2: { // Target EETF
+                             type: 'line',
+                             scaleID: 'x',
+                             value: params.eetf_target,
+                             borderColor: 'rgba(75, 192, 192, 0.8)',
+                             borderWidth: 2,
+                             label: {
+                                 content: 'Target EETF',
+                                 enabled: true,
+                                 position: 'end'
+                             }
+                         }
+                    }
+                 };
+             }
+            */
+
+
+            dbrChartInstance = new Chart(dbrCtx, {
+                type: 'line',
+                data: {
+                    labels: eetf_range.map(e => e.toFixed(2)),
+                    datasets: [{
+                        label: 'Current BR vs. Avg EETF',
+                        data: br_values,
+                        borderColor: 'rgb(59, 130, 246)',
+                        tension: 0.1,
+                        fill: false,
+                        pointRadius: 0, // Hide points for cleaner line
+                    }]
+                },
+                options: chartOptions
+            });
+            updateDbrChart(); // Initial update
+        }
+
+
+        // --- HCR Calculations & Chart ---
+        const hcrEetfAccountSlider = document.getElementById('hcr-eetf-account-slider');
+        const hcrLthfAccountSlider = document.getElementById('hcr-lthf-account-slider');
+        const hcrEetfAccountValue = document.getElementById('hcr-eetf-account-value');
+        const hcrLthfAccountValue = document.getElementById('hcr-lthf-account-value');
+        const hcrEffectiveRate = document.getElementById('hcr-effective-rate');
+        const hcrCtx = document.getElementById('hcrChart').getContext('2d');
+
+        function calculateHcrRate(eetf_account_avg, lthf_account) {
+            const eetf_comp_mult = 1 + params.eetf_comp_sensitivity * Math.max(0, eetf_account_avg - params.base_eetf);
+            const lthf_comp_mult = 1 + params.lthf_comp_sensitivity * Math.max(0, lthf_account - params.base_lthf);
+            return params.base_comp_rate * eetf_comp_mult * lthf_comp_mult;
+        }
+
+        function calculateCompoundGrowth(initial_amount, rate, years) {
+            let amounts = [initial_amount];
+            for (let i = 1; i <= years; i++) {
+                amounts.push(amounts[i - 1] * (1 + rate));
+            }
+            return amounts;
+        }
+
+        function updateHcrChart() {
+            const current_eetf_account = parseFloat(hcrEetfAccountSlider.value);
+            const current_lthf_account = parseFloat(hcrLthfAccountSlider.value);
+            hcrEetfAccountValue.textContent = current_eetf_account.toFixed(2);
+            hcrLthfAccountValue.textContent = current_lthf_account.toFixed(2);
+
+            const effective_rate = calculateHcrRate(current_eetf_account, current_lthf_account);
+            hcrEffectiveRate.textContent = (effective_rate * 100).toFixed(2);
+
+            // Update chart data
+            const years = 10;
+            const growth_data = calculateCompoundGrowth(100, effective_rate, years);
+            const labels = Array.from({ length: years + 1 }, (_, i) => `Year ${i}`);
+
+            if (hcrChartInstance) {
+                hcrChartInstance.data.labels = labels;
+                hcrChartInstance.data.datasets[0].data = growth_data;
+                hcrChartInstance.data.datasets[0].label = `Growth at ${(effective_rate * 100).toFixed(2)}% APR`;
+                hcrChartInstance.update();
+            }
+        }
+
+         function initHcrChart() {
+            const years = 10;
+            const labels = Array.from({ length: years + 1 }, (_, i) => `Year ${i}`);
+            const initial_rate = calculateHcrRate(parseFloat(hcrEetfAccountSlider.value), parseFloat(hcrLthfAccountSlider.value));
+            const initial_growth_data = calculateCompoundGrowth(100, initial_rate, years);
+
+            hcrChartInstance = new Chart(hcrCtx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: `Growth at ${(initial_rate * 100).toFixed(2)}% APR`,
+                        data: initial_growth_data,
+                        borderColor: 'rgb(16, 185, 129)', // Green
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        tension: 0.1,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { title: { display: true, text: 'Time (Years)' } },
+                        y: { title: { display: true, text: 'Token Amount (Example)' }, beginAtZero: false } // Start near initial value
+                    },
+                    plugins: {
+                        tooltip: { mode: 'index', intersect: false },
+                        legend: { display: true, position: 'bottom' },
+                    }
+                }
+            });
+             updateHcrChart(); // Initial update
+        }
+
+
+        // --- AEB Calculations & Chart ---
+        const aebEetfAvgSlider = document.getElementById('aeb-eetf-avg-slider');
+        const aebEetfAvgValue = document.getElementById('aeb-eetf-avg-value');
+        const aebBurnAmount = document.getElementById('aeb-burn-amount');
+        const aebCtx = document.getElementById('aebChart').getContext('2d');
+
+        function calculateAebMultiplier(eetf_avg) {
+            // Power Law Example
+            return Math.pow(1 + Math.max(0, eetf_avg - params.eetf_target), params.power_sensitivity);
+            // Optional: Add clamping here if needed
+        }
+
+        function updateAebChart() {
+            const current_eetf_avg = parseFloat(aebEetfAvgSlider.value);
+            aebEetfAvgValue.textContent = current_eetf_avg.toFixed(2);
+            const burn_multiplier = calculateAebMultiplier(current_eetf_avg);
+            // Display relative burn amount (multiplier itself)
+            aebBurnAmount.textContent = burn_multiplier.toFixed(2);
+
+            // Update chart data
+            const eetf_range = npRange(0.5, 2.0, 50);
+            const burn_multipliers = eetf_range.map(eetf => calculateAebMultiplier(eetf));
+
+            if (aebChartInstance) {
+                aebChartInstance.data.labels = eetf_range.map(e => e.toFixed(2));
+                aebChartInstance.data.datasets[0].data = burn_multipliers;
+                 // Update vertical line for current slider value (if annotation plugin were available)
+                 if(aebChartInstance.options.plugins.annotation?.annotations?.line1) {
+                    aebChartInstance.options.plugins.annotation.annotations.line1.xMin = current_eetf_avg;
+                    aebChartInstance.options.plugins.annotation.annotations.line1.xMax = current_eetf_avg;
+                 }
+                aebChartInstance.update();
+            }
+        }
+
+        function initAebChart() {
+            const eetf_range = npRange(0.5, 2.0, 50);
+            const burn_multipliers = eetf_range.map(eetf => calculateAebMultiplier(eetf));
+
+            const chartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { title: { display: true, text: 'Network Average EETF' } },
+                    y: { title: { display: true, text: 'Burn Rate Multiplier (Relative)' }, beginAtZero: true }
+                },
+                plugins: {
+                    tooltip: { mode: 'index', intersect: false },
+                    legend: { display: true },
+                },
+                 interaction: {
+                    mode: 'nearest',
+                    axis: 'x',
+                    intersect: false
+                },
+            };
+
+             // Add annotations only if the plugin is loaded
+             /*
+             if (typeof Chart.registry.plugins.get('annotation') !== 'undefined') {
+                 chartOptions.plugins.annotation = {
+                     annotations: {
+                         line1: { // Current Slider Value
+                             type: 'line',
+                             scaleID: 'x',
+                             value: parseFloat(aebEetfAvgSlider.value),
+                             borderColor: 'rgba(255, 99, 132, 0.8)',
+                             borderWidth: 2,
+                             borderDash: [6, 6],
+                             label: { content: 'Current Avg EETF', enabled: true, position: 'start' }
+                         },
+                         line2: { // Target EETF
+                             type: 'line',
+                             scaleID: 'x',
+                             value: params.eetf_target,
+                             borderColor: 'rgba(75, 192, 192, 0.8)',
+                             borderWidth: 2,
+                             label: { content: 'Target EETF', enabled: true, position: 'end' }
+                         }
+                     }
+                 };
+             }
+            */
+
+            aebChartInstance = new Chart(aebCtx, {
+                type: 'line',
+                data: {
+                    labels: eetf_range.map(e => e.toFixed(2)),
+                    datasets: [{
+                        label: 'Burn Multiplier vs. Avg EETF',
+                        data: burn_multipliers,
+                        borderColor: 'rgb(239, 68, 68)', // Red
+                        tension: 0.1,
+                        fill: false,
+                        pointRadius: 0,
+                    }]
+                },
+                options: chartOptions
+            });
+             updateAebChart(); // Initial update
+        }
+
+        // --- Utility: Generate range like numpy.linspace ---
+        function npRange(start, stop, num) {
+            if (num < 2) return num === 1 ? [start] : [];
+            const step = (stop - start) / (num - 1);
+            return Array.from({ length: num }, (_, i) => start + step * i);
+        }
+
+
+        // --- Initialization and Event Listeners ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Init Charts
+            initDbrChart();
+            initHcrChart();
+            initAebChart();
+
+            // Event Listeners
+            dbrEetfAvgSlider.addEventListener('input', updateDbrChart);
+            hcrEetfAccountSlider.addEventListener('input', updateHcrChart);
+            hcrLthfAccountSlider.addEventListener('input', updateHcrChart);
+            aebEetfAvgSlider.addEventListener('input', updateAebChart);
+        });
+
+    </script>
+
+</body>
+</html>
