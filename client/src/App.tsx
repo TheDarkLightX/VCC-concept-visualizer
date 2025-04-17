@@ -6,6 +6,7 @@ import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import TEECExplainer from "@/pages/TEECExplainer";
 import TauImplementation from "@/pages/TauImplementation";
+import FormulasPage from "@/pages/FormulasPage";
 import VCCLogo from "@/components/VCCLogo";
 
 function Router() {
@@ -23,6 +24,7 @@ function Router() {
             <Link href="/" className="hover:text-blue-300 transition-colors">Home</Link>
             <Link href="/teec" className="hover:text-blue-300 transition-colors">TEEC Explainer</Link>
             <Link href="/tau" className="hover:text-blue-300 transition-colors">Tau Implementation</Link>
+            <Link href="/formulas" className="hover:text-blue-300 transition-colors">Formulas</Link>
           </div>
         </div>
       </nav>
@@ -30,6 +32,7 @@ function Router() {
         <Route path="/" component={Home} />
         <Route path="/teec" component={TEECExplainer} />
         <Route path="/tau" component={TauImplementation} />
+        <Route path="/formulas" component={FormulasPage} />
         <Route component={NotFound} />
       </Switch>
     </>
