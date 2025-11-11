@@ -132,17 +132,20 @@ spec CalculateEETF {
               <div className="bg-gray-100 p-5 rounded-lg">
                 <h3 className="text-lg font-semibold mb-3 text-gray-800">Example: Dynamic Base Reward as a Tau Specification</h3>
                 <div className="font-mono text-sm bg-gray-800 text-gray-100 p-4 rounded overflow-x-auto">
-                  <pre>{`// A representation of how DBR might be specified in Tau
+<pre>{`// A representation of how DBR might be specified in Tau
 spec DynamicBaseReward {
-  // The system should adjust the base reward based on network-wide EETF
-  network.base_reward = function_of(average(all_transactions.eetf_score))
-  
-  // The exact function used can be collectively determined
-  // For example, the network might specify:
-  preferably network.base_reward increases as average EETF increases
-  preferably the rate of increase accelerates at higher EETF levels
-  
-  // These preferences become constraints that shape the actual implementation
+  let target_eetf := 1.0
+  let smoothing_half_life := 4 epochs
+
+  // The system should smooth the network-wide EETF signal
+  network.eetf_ema = ema(all_transactions.eetf_score, smoothing_half_life)
+
+  // Controller preferences:
+  preferably if network.eetf_ema < target_eetf then base_reward_multiplier increases
+  preferably if network.eetf_ema > target_eetf then base_reward_multiplier decreases
+  preferably changes in base_reward_multiplier are smooth and bounded
+
+  // These declarative preferences bound the implementation of the PI controller
 }`}</pre>
                 </div>
               </div>

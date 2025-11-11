@@ -1,19 +1,24 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import FormulaSyntax from "@/components/FormulaSyntax";
 import SliderControl from "@/components/SliderControl";
 import VCCCharts from "@/components/VCCCharts";
-import { 
-  calculateDBRMultiplier, 
-  calculateCompoundingRate, 
-  calculateBurnMultiplier 
+import {
+  calculateBurnOutcome,
+  calculateCompoundingRate,
+  calculateDBRMultiplier,
+  createDefaultDBRState,
+  type DBRControllerState,
 } from "@/utils/vccCalculations";
 
 export default function Home() {
   // Dynamic Base Reward state
   const [dbrEETFAvg, setDbrEETFAvg] = useState(1.2);
-  const [dbrCurrentBR, setDbrCurrentBR] = useState(0);
+  const [dbrControllerState, setDbrControllerState] = useState<DBRControllerState>(() =>
+    createDefaultDBRState(),
+  );
+  const [dbrCurrentBR, setDbrCurrentBR] = useState(1);
 
   // Hyper-Compounding Rewards state
   const [hcrEETFAccount, setHcrEETFAccount] = useState(1.0);
@@ -22,14 +27,23 @@ export default function Home() {
 
   // Aggressive Ethical Burn state
   const [aebEETFAvg, setAebEETFAvg] = useState(1.2);
-  const [aebBurnAmount, setAebBurnAmount] = useState(0);
+  const [aebOutcome, setAebOutcome] = useState(() => calculateBurnOutcome(1.2));
 
   useEffect(() => {
-    // Calculate values on initial render and state changes
-    setDbrCurrentBR(calculateDBRMultiplier(dbrEETFAvg));
     setHcrEffectiveRate(calculateCompoundingRate(hcrEETFAccount, hcrLTHFAccount));
-    setAebBurnAmount(calculateBurnMultiplier(aebEETFAvg));
-  }, [dbrEETFAvg, hcrEETFAccount, hcrLTHFAccount, aebEETFAvg]);
+  }, [hcrEETFAccount, hcrLTHFAccount]);
+
+  useEffect(() => {
+    setDbrControllerState(prevState => {
+      const { multiplier, state } = calculateDBRMultiplier(dbrEETFAvg, prevState);
+      setDbrCurrentBR(multiplier);
+      return state;
+    });
+  }, [dbrEETFAvg]);
+
+  useEffect(() => {
+    setAebOutcome(calculateBurnOutcome(aebEETFAvg));
+  }, [aebEETFAvg]);
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-800 font-sans">
@@ -57,134 +71,192 @@ export default function Home() {
           </CardContent>
         </Card>
 
-        <Card className="mb-8">
-          <CardContent className="pt-6">
-            <h2 className="text-2xl font-bold mb-6 text-gray-900 border-b-2 border-primary-500 pb-2">VCC Components & Visualizations</h2>
+          <Card className="mb-8">
+            <CardContent className="pt-6">
+              <h2 className="text-2xl font-bold mb-6 text-gray-900 border-b-2 border-primary-500 pb-2">
+                VCC Components & Visualizations
+              </h2>
 
-            <div className="mb-8 pb-8 border-b border-gray-200">
-              <h3 className="text-xl font-semibold mb-4 text-blue-900">1. Dynamic & Amplified Base Reward (DBR+)</h3>
-              <p className="text-gray-700 mb-2">The base reward multiplier (`Current_BR`) used in all TEEC calculations adjusts based on the network's average EETF (`EETF_avg`). Higher average ethics boost the base reward for everyone. This version includes a subtle feedback where the sensitivity might slightly increase at very high `EETF_avg`.</p>
-              
-              <FormulaSyntax>
-{`BR_Multiplier = 1 + DBR_Sensitivity * (EETF_avg - EETF_target)
-Clamped_Multiplier = Clamp(BR_Multiplier, Min_BR_Factor, Max_BR_Factor)
-// Optional Enhancement:
-Enhanced_Sensitivity = DBR_Sensitivity * (1 + Network_Feedback_Factor * max(0, EETF_avg - EETF_target))
-Enhanced_BR_Multiplier = 1 + Enhanced_Sensitivity * (EETF_avg - EETF_target)
-Enhanced_Clamped_Multiplier = Clamp(Enhanced_BR_Multiplier, Min_BR_Factor, Max_BR_Factor)
+              <div className="mb-8 pb-8 border-b border-gray-200">
+                <h3 className="text-xl font-semibold mb-4 text-blue-900">
+                  1. Dynamic Base Reward (PI Controlled)
+                </h3>
+                <p className="text-gray-700 mb-2">
+                  The base reward multiplier (`Current_BR`) reacts to the network&apos;s smoothed ethical signal via a discrete PI controller. Persistent shortfalls below the target lift rewards for everyone, while sustained overshoots gently cool rewards, promoting stability without abrupt jumps.
+                </p>
 
-Current_BR = Base_BR * Enhanced_Clamped_Multiplier // Use enhanced version`}
-              </FormulaSyntax>
-              
-              <SliderControl
-                id="dbr-eetf-avg-slider"
-                label="Network Avg EETF:"
-                min={0.5}
-                max={2.0}
-                step={0.01}
-                value={dbrEETFAvg}
-                onChange={setDbrEETFAvg}
-                valueDisplay={dbrEETFAvg.toFixed(2)}
-                additionalInfo={`Current BR Multiplier: ${dbrCurrentBR.toFixed(2)}x`}
-              />
-              
-              <VCCCharts 
-                chartType="dbr" 
-                currentValue={dbrEETFAvg} 
-                calculatedValue={dbrCurrentBR} 
-              />
-            </div>
+                <FormulaSyntax>
+{`α = ln(2) / Half_Life
+EETF_EMA_t = (1 - α) * EETF_EMA_{t-1} + α * EETF_avg_t
+e_t = EETF_target - EETF_EMA_t
+u_t = u_{t-1} + k_p (e_t - e_{t-1}) + k_i e_t
+DBR_multiplier_t = Clamp(exp(u_t), Min_BR_Factor, Max_BR_Factor)
+// Inside a dead-band: use a reduced k_p to add hysteresis`}
+                </FormulaSyntax>
 
-            <div className="mb-8 pb-8 border-b border-gray-200">
-              <h3 className="text-xl font-semibold mb-4 text-blue-900">2. Hyper-Compounding Rewards (HCR)</h3>
-              <p className="text-gray-700 mb-2">Replaces simple compounding. The *rate* of compounding (`Effective_Comp_Rate`) is aggressively boosted by an account's sustained average EETF (`EETF_account_avg`) and Long-Term Holding Factor (`LTHF_account`).</p>
-              
-              <FormulaSyntax>
-{`EETF_Comp_Mult = 1 + EETF_Comp_Sensitivity * max(0, EETF_account_avg - Base_EETF)
-LTHF_Comp_Mult = 1 + LTHF_Comp_Sensitivity * max(0, LTHF_account - Base_LTHF)
-
-Effective_Comp_Rate = Base_Comp_Rate * EETF_Comp_Mult * LTHF_Comp_Mult
-Compounding_Factor = (1 + Effective_Comp_Rate)^Time`}
-              </FormulaSyntax>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <SliderControl
-                  id="hcr-eetf-account-slider"
-                  label="Account Avg EETF:"
-                  min={0.8}
+                  id="dbr-eetf-avg-slider"
+                  label="Network Avg EETF:"
+                  min={0.5}
                   max={2.0}
                   step={0.01}
-                  value={hcrEETFAccount}
-                  onChange={setHcrEETFAccount}
-                  valueDisplay={hcrEETFAccount.toFixed(2)}
+                  value={dbrEETFAvg}
+                  onChange={setDbrEETFAvg}
+                  valueDisplay={dbrEETFAvg.toFixed(2)}
+                  additionalInfo={`Current BR Multiplier: ${dbrCurrentBR.toFixed(2)}x`}
                 />
-                
-                <SliderControl
-                  id="hcr-lthf-account-slider"
-                  label="Account LTHF:"
-                  min={1.0}
-                  max={3.0}
-                  step={0.01}
-                  value={hcrLTHFAccount}
-                  onChange={setHcrLTHFAccount}
-                  valueDisplay={hcrLTHFAccount.toFixed(2)}
+
+                <div className="mt-3 grid grid-cols-1 gap-2 text-sm text-gray-600 md:grid-cols-2">
+                  <div>
+                    <span className="font-semibold text-gray-800">Smoothed EETF: </span>
+                    {dbrControllerState.ema.toFixed(3)}
+                  </div>
+                  <div>
+                    <span className="font-semibold text-gray-800">PI error: </span>
+                    {dbrControllerState.error.toFixed(3)}
+                  </div>
+                </div>
+
+                <button
+                  className="mt-3 rounded border border-blue-200 bg-white px-3 py-1 text-sm font-medium text-blue-700 transition hover:bg-blue-50"
+                  onClick={() => {
+                    setDbrControllerState(createDefaultDBRState());
+                    setDbrCurrentBR(1);
+                  }}
+                >
+                  Reset Controller State
+                </button>
+
+                <VCCCharts
+                  chartType="dbr"
+                  currentValue={dbrEETFAvg}
+                  calculatedValue={dbrCurrentBR}
                 />
               </div>
-              
-              <p className="text-center mt-2 text-sm text-gray-600">
-                Effective Annual Compounding Rate: <span className="font-semibold text-blue-800 inline-block bg-blue-100 px-2 py-0.5 rounded text-base">{(hcrEffectiveRate * 100).toFixed(2)}</span>%
-              </p>
-              
-              <VCCCharts 
-                chartType="hcr" 
-                currentValue1={hcrEETFAccount} 
-                currentValue2={hcrLTHFAccount} 
-                calculatedValue={hcrEffectiveRate} 
-              />
-              
-              <p className="text-xs text-center text-gray-500 mt-1">Chart shows growth of 100 tokens over 10 years at the calculated rate.</p>
-            </div>
 
-            <div>
-              <h3 className="text-xl font-semibold mb-4 text-blue-900">3. Aggressive Ethical Burn (AEB)</h3>
-              <p className="text-gray-700 mb-2">Enhances token burning. The burn rate increases non-linearly (e.g., using a power law) as the network average EETF (`EETF_avg`) surpasses its target, creating stronger deflationary pressure at higher collective ethics.</p>
-              
-              <FormulaSyntax>
-{`// Power Law Example:
-Burn_Power_Multiplier = (1 + max(0, EETF_avg - EETF_target))^Power_Sensitivity
-Burn_Amount = Funding_Source * Base_Burn_Rate * Burn_Power_Multiplier`}
-              </FormulaSyntax>
-              
-              <SliderControl
-                id="aeb-eetf-avg-slider"
-                label="Network Avg EETF:"
-                min={0.5}
-                max={2.0}
-                step={0.01}
-                value={aebEETFAvg}
-                onChange={setAebEETFAvg}
-                valueDisplay={aebEETFAvg.toFixed(2)}
-                additionalInfo={`Relative Burn Amount: ${aebBurnAmount.toFixed(2)}x Base`}
-              />
-              
-              <VCCCharts 
-                chartType="aeb" 
-                currentValue={aebEETFAvg} 
-                calculatedValue={aebBurnAmount} 
-              />
-            </div>
-          </CardContent>
-        </Card>
+              <div className="mb-8 pb-8 border-b border-gray-200">
+                <h3 className="text-xl font-semibold mb-4 text-blue-900">2. Hyper-Compounding Rewards (HCR)</h3>
+                <p className="text-gray-700 mb-2">
+                  Replaces simple compounding with a bounded Cobb–Douglas response to account-level ethics and long-term holding. Returns remain monotone and complementary—both signals high is best—while hard caps prevent runaway rates.
+                </p>
 
-        <Card className="mb-8">
+                <FormulaSyntax>
+{`Effective_Comp_Rate = Clamp(
+Base_Comp_Rate *
+(EETF_account_avg / Base_EETF)^α *
+(LTHF_account / Base_LTHF)^β,
+Rate_min,
+Rate_max)
+Compounding_Factor = (1 + Effective_Comp_Rate)^Time`}
+                </FormulaSyntax>
+
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <SliderControl
+                    id="hcr-eetf-account-slider"
+                    label="Account Avg EETF:"
+                    min={0.8}
+                    max={2.0}
+                    step={0.01}
+                    value={hcrEETFAccount}
+                    onChange={setHcrEETFAccount}
+                    valueDisplay={hcrEETFAccount.toFixed(2)}
+                  />
+
+                  <SliderControl
+                    id="hcr-lthf-account-slider"
+                    label="Account LTHF:"
+                    min={1.0}
+                    max={3.0}
+                    step={0.01}
+                    value={hcrLTHFAccount}
+                    onChange={setHcrLTHFAccount}
+                    valueDisplay={hcrLTHFAccount.toFixed(2)}
+                  />
+                </div>
+
+                <p className="mt-2 text-center text-sm text-gray-600">
+                  Effective Annual Compounding Rate:{" "}
+                  <span className="inline-block rounded bg-blue-100 px-2 py-0.5 text-base font-semibold text-blue-800">
+                    {(hcrEffectiveRate * 100).toFixed(2)}
+                  </span>
+                  %
+                </p>
+
+                <VCCCharts
+                  chartType="hcr"
+                  currentValue1={hcrEETFAccount}
+                  currentValue2={hcrLTHFAccount}
+                  calculatedValue={hcrEffectiveRate}
+                />
+
+                <p className="mt-1 text-center text-xs text-gray-500">
+                  Chart shows growth of 100 tokens over 10 years at the calculated rate.
+                </p>
+              </div>
+
+              <div>
+                <h3 className="text-xl font-semibold mb-4 text-blue-900">3. Aggressive Ethical Burn (AEB)</h3>
+                <p className="text-gray-700 mb-2">
+                  Couples burning to a supply target: the network must burn the surplus when issuance exceeds the desired inflation path, and a logistic tilt makes high ethical periods burn a little hotter without blowing past caps.
+                </p>
+
+                <FormulaSyntax>
+{`Issuance_t = Base_Issuance * Activity_t * DBR_multiplier_t
+Budget_Burn_t = max(0, Issuance_t - π* * Supply_t)
+σ(z) = 1 / (1 + e^{-z})
+Modulation_t = 1 + γ * (σ((EETF_EMA_t - 1)/s) - 0.5)
+Burn_t = Clamp(Modulation_t * Budget_Burn_t, Burn_min, Burn_max)`}
+                </FormulaSyntax>
+
+                <SliderControl
+                  id="aeb-eetf-avg-slider"
+                  label="Network Avg EETF:"
+                  min={0.5}
+                  max={2.0}
+                  step={0.01}
+                  value={aebEETFAvg}
+                  onChange={setAebEETFAvg}
+                  valueDisplay={aebEETFAvg.toFixed(2)}
+                  additionalInfo={`Relative Burn Factor: ${aebOutcome.relativeBurn.toFixed(2)}x baseline`}
+                />
+
+                <div className="mt-3 grid grid-cols-1 gap-2 text-sm text-gray-600 md:grid-cols-2">
+                  <div>
+                    <span className="font-semibold text-gray-800">Issuance (normalized): </span>
+                    {aebOutcome.issuance.toFixed(2)}
+                  </div>
+                  <div>
+                    <span className="font-semibold text-gray-800">Budget burn need: </span>
+                    {aebOutcome.budgetBurn.toFixed(2)}
+                  </div>
+                  <div>
+                    <span className="font-semibold text-gray-800">Modulation factor: </span>
+                    {aebOutcome.modulation.toFixed(2)}
+                  </div>
+                  <div>
+                    <span className="font-semibold text-gray-800">Actual burn (normalized): </span>
+                    {aebOutcome.absoluteBurn.toFixed(2)}
+                  </div>
+                </div>
+
+                <VCCCharts
+                  chartType="aeb"
+                  currentValue={aebEETFAvg}
+                  calculatedValue={aebOutcome.relativeBurn}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="mb-8">
           <CardContent className="pt-6">
             <h2 className="text-2xl font-bold mb-6 text-gray-900 border-b-2 border-primary-500 pb-2">Why this is Powerful: Synergy & Feedback</h2>
-            <ul className="list-disc list-inside space-y-2 text-gray-700">
-              <li><strong className="font-semibold text-gray-800">Synergy:</strong> High EETF scores associated with an account's transactions directly boost base rewards AND dramatically increase the effective compounding rate (HCR) for that account's holdings.</li>
-              <li><strong className="font-semibold text-gray-800">Feedback Loop 1 (Account-Level):</strong> Sustained high average EETF for an account leads to exponentially faster growth of holdings via HCR.</li>
-              <li><strong className="font-semibold text-gray-800">Feedback Loop 2 (Collective):</strong> High network average EETF increases the base reward for all (DBR+) AND triggers aggressive burning (AEB), reducing supply and potentially increasing the value of tokens held by all accounts.</li>
-              <li><strong className="font-semibold text-gray-800">Alignment:</strong> The path to potentially significant returns is explicitly tied to maximizing EETF scores associated with account activity and the collective network average over the long term. It aims to make sustained "goodness" (as defined by transaction evaluation criteria) the most profitable strategy, regardless of whether the actor is human or AI.</li>
-            </ul>
+              <ul className="list-disc list-inside space-y-2 text-gray-700">
+                <li><strong className="font-semibold text-gray-800">Synergy:</strong> Individual ethical performance earns higher compounding via HCR, while the shared DBR/AEB loop keeps the network anchored near its target.</li>
+                <li><strong className="font-semibold text-gray-800">Feedback Loop 1 (Account-Level):</strong> Sustained high average EETF for an account drives faster balance growth through the bounded Cobb–Douglas compounding rate.</li>
+                <li><strong className="font-semibold text-gray-800">Feedback Loop 2 (Collective):</strong> Network EETF below target lifts DBR multipliers to encourage improvement; when ethics run hot, AEB removes surplus supply to protect value.</li>
+                <li><strong className="font-semibold text-gray-800">Alignment:</strong> The strongest returns come from keeping both individual and collective ethics high over time, linking token value directly to sustained pro-social behaviour.</li>
+              </ul>
           </CardContent>
         </Card>
 
